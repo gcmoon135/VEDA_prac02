@@ -1,30 +1,50 @@
-# 리눅스 기반 원격 하드웨어 제어 시스템 (Remote Device Control System)
+# 심화실습평가2 (리눅스 프로그래밍) - 원격 장치 제어 시스템
 
 ## 1. 프로젝트 개요
-TCP/IP 소켓 통신을 이용하여 라즈베리파이에 연결된 하드웨어(LED, Buzzer, FND, CDS)를 원격(Ubuntu PC)에서 제어하고 모니터링하는 시스템입니다.  
-서버는 **데몬(Daemon)** 프로세스로 동작하며, 하드웨어 제어부는 **공유 라이브러리(.so)**로 분리하여 유지보수성을 높였습니다.
+* **주제:** TCP/IP 소켓 통신을 이용한 라즈베리파이 원격 하드웨어 제어 시스템 구현
+* **환경:** Server(Raspberry Pi 4) / Client(Ubuntu Linux)
+* **언어:** C Language (WiringPi, Pthread, Socket API)
 
-## 2. 개발 환경
-* **Target:** Raspberry Pi 4 (Raspbian OS)
-* **Host:** Ubuntu Linux 20.04 LTS
-* **Language:** C (Standard C99)
-* **Libraries:** WiringPi, Pthread
-* **Build Tool:** Make (Makefile)
+---
+
+## 2. 평가 기준 항목별 구현 기능 여부 (Implementation Status)
+
+### [기본 구현 내용]
+* **[ v ] 멀티 프로세스 또는 스레드 이용한 장치 제어**
+    * `pthread` 라이브러리를 사용하여 멀티 스레드 방식으로 서버를 구현함. 클라이언트 요청 처리와 조도 센서 자동 감시 스레드를 분리하여 동시성 확보.
+* **[ v ] 대상 장치 제어 (LED / 부저 / 조도센서 / 7세그먼트)**
+    * **LED:** PWM을 이용한 밝기 조절(최대/중간/최저) 및 On/Off 제어 (Active Low 회로 대응).
+    * **부저:** 멜로디 연주 및 경고 비프음 출력.
+    * **조도센서:** 실시간 값 확인 및 자동 제어(Auto Mode) 연동.
+    * **7세그먼트:** 타이머 카운트다운 기능 구현.
+* **[ v ] 공유 라이브러리(Shared Library) 형식 작성**
+    * 하드웨어 제어 코드를 `mydevices.c`로 분리하고 `libmydevices.so` 동적 라이브러리로 빌드함.
+    * 서버 재컴파일 없이 라이브러리 교체만으로 장치 기능 업그레이드가 가능한 구조.
+* **[ v ] 클라이언트 시그널 처리**
+    * `signal(SIGINT, handler)`를 등록하여 `Ctrl+C` 입력 시 소켓을 닫고 안전하게 종료되도록 처리함.
+* **[ v ] 서버 데몬(Daemon) 프로세스 구성**
+    * `fork()`, `setsid()` 등을 사용하여 터미널 종료 후에도 백그라운드에서 실행되는 데몬 프로세스로 구현.
+* **[ v ] 빌드 자동화 (Make 이용)**
+    * `Makefile`을 작성하여 라이브러리 링크 및 서버/클라이언트 빌드를 자동화함.
+
+### [추가 기능 구현 (Bonus)]
+* **[ v ] 추가 기능 1: 스마트 경고 시스템 (Auto Warning Mode)**
+    * 조도 센서 자동 모드 시, 어두움이 감지되면 단순히 LED만 켜지는 것이 아니라 **LED 점멸 및 부저 경고음**이 동시에 작동하도록 기능 확장.
+* **[ v ] 추가 기능 2: 스페셜 타이머 (Special FND)**
+    * 7세그먼트 카운트다운 시, **홀수 초(Odd Number)**마다 짧고 굵은 비프음을 발생시켜 청각적 피드백 제공.
+
+---
 
 ## 3. 디렉토리 구조
+```text
 project_submit/
 ├── code/
-│   ├── client/ (클라이언트 소스)
-│   ├── server/ (서버 및 라이브러리 소스)
-│   └── Makefile (통합 빌드 스크립트)
+│   ├── client/       # 클라이언트 소스코드 (client.c)
+│   ├── server/       # 서버 및 라이브러리 소스코드 (server.c, mydevices.c, mydevices.h)
+│   └── Makefile      # 빌드 자동화 스크립트
 ├── exec/
-│   ├── lib/ (생성된 공유 라이브러리 위치)
-│   ├── server (서버 실행 파일)
-│   └── client (클라이언트 실행 파일)
-└── docs/ (개발 문서)
-
-## 4. 빌드 방법 (Build)
-`code` 디렉토리로 이동하여 `make` 명령어를 실행합니다.
-```bash
-$ cd code
-$ make
+│   ├── lib/          # 공유 라이브러리 (.so) 저장소
+│   ├── server        # 서버 실행 파일
+│   └── client        # 클라이언트 실행 파일
+├── docs/             # 개발 문서 (Manual, README)
+└── misc/             # 회로도 및 기타 자료
