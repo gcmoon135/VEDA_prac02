@@ -1,13 +1,13 @@
-# 심화실습평가2 (리눅스 프로그래밍) - 원격 장치 제어 시스템
+# 🚀 심화실습평가2 (리눅스 프로그래밍) - 원격 장치 제어 시스템
 
-## 1. 프로젝트 개요
+## 1️⃣ 프로젝트 개요
 * **주제:** TCP/IP 소켓 통신을 이용한 라즈베리파이 원격 하드웨어 제어 시스템 구현
 * **환경:** Server(Raspberry Pi 4) / Client(Ubuntu Linux)
 * **언어:** C Language (WiringPi, Pthread, Socket API)
 
 ---
 
-## 2. 평가 기준 항목별 구현 기능 여부 (Implementation Status)
+## 2️⃣ 평가 기준 항목별 구현 기능 여부 (Implementation Status)
 
 ### [기본 구현 내용]
 * **[ v ] 멀티 프로세스 또는 스레드 이용한 장치 제어**
@@ -35,7 +35,7 @@
 
 ---
 
-## 3. 디렉토리 구조
+## 3️⃣ 디렉토리 구조
 ```text
 project_submit/
 ├── code/
